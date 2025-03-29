@@ -1,7 +1,8 @@
 .sidebar {
+  /* Remove forcing entire height of viewport – let it size naturally. */
   width: 200px;
   background-color: #f4f4f4;
-  height: calc(100vh - 0px);
+  /* Instead of forcing height: calc(100vh - 0px), let it expand/shrink. */
   padding: 1rem;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }

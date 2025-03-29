@@ -9,7 +9,10 @@
   flex: 1;
 }
 
+/* The primary page content area to the right of sidebar */
 .page-content {
   flex: 1;
   padding: 1rem;
+  /* Let content scroll if needed, while the sidebar stays put */
+  overflow: auto;
 }

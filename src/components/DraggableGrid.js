@@ -13,14 +13,15 @@ import 'react-resizable/css/styles.css';
 import './DraggableGrid.css';
 import MiniTileChart from './MiniTileChart';
 
-const COL_WIDTH = 200;
+const COLS = 6;       // Number of grid columns
 const ROW_HEIGHT = 100;
 
 const DraggableGrid = () => {
   const navigate = useNavigate();
-
+  
+  // State that holds all tiles in the dashboard
   const [tiles, setTiles] = useState([]);
-  // Keep a ref to always have the latest tiles in the polling function:
+  // A ref so we can access the most recent tiles from within intervals
   const tilesRef = useRef([]);
   useEffect(() => {
     tilesRef.current = tiles;
@@ -29,20 +30,35 @@ const DraggableGrid = () => {
   // Force re-render keys for minicharts after resizing
   const [forceKeyMap, setForceKeyMap] = useState({});
 
+  // Whether we are adding a new sensor tile
   const [isAddMode, setIsAddMode] = useState(false);
 
-  // ------------ Data Fetching Logic ------------
+  // ---- (1) Container width measurement for responsiveness ----
+  const gridRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (gridRef.current) {
+        setContainerWidth(gridRef.current.clientWidth);
+      }
+    };
+    // Measure immediately and whenever window resizes
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // ---- (2) Data fetching logic ----
   const updateAllTiles = useCallback(async () => {
     const currentTiles = tilesRef.current;
-    if (!currentTiles.length) return; // Avoid if no tiles
+    if (!currentTiles.length) return;
     try {
       const updated = await Promise.all(
         currentTiles.map(async (tile) => {
           if (!tile.sensorType) return tile;
           try {
-            // get up to 100 data points, newest last
             const rawData = await fetchSensorData(tile.sensorType, { limit: 100 });
-            // compute rolling avg
             const values = rawData.map((d) => d.value);
             const avg10 = computeRollingAverages(values, 10);
 
@@ -65,16 +81,18 @@ const DraggableGrid = () => {
     }
   }, []);
 
-  // 1) Load layout from server, then immediately fetch data
+  // Initially load the layout and fetch sensor data
   useEffect(() => {
     (async () => {
       try {
         const layoutData = await fetchLayout();
         if (layoutData?.tiles) {
-          // Initialize all tile data arrays to empty
-          const loaded = layoutData.tiles.map((t) => ({ ...t, data: [] }));
+          const loaded = layoutData.tiles.map((t) => ({
+            ...t,
+            data: [],
+          }));
           setTiles(loaded);
-          // Immediately fetch sensor data so we don't wait for the 2s interval
+          // Fetch sensor data right away
           updateAllTiles();
         }
       } catch (err) {
@@ -83,17 +101,15 @@ const DraggableGrid = () => {
     })();
   }, [updateAllTiles]);
 
-  // 2) Poll sensor data every 1 seconds, but only set up once
+  // Poll sensor data every second
   useEffect(() => {
     const timer = setInterval(() => {
       updateAllTiles();
     }, 1000);
-
-    // Clean up
     return () => clearInterval(timer);
   }, [updateAllTiles]);
 
-  // ------------ Grid Layout / Saving Logic ------------
+  // ---- (3) Grid layout logic ----
   const layout = tiles.map((t) => ({
     i: t.id,
     x: t.layout.x,
@@ -142,19 +158,18 @@ const DraggableGrid = () => {
   const handleResizeStop = (curLayout) => {
     const updated = applyLayoutToTiles(curLayout);
     setTiles(updated);
-
-    // Bump the forceKey for each tile that changed
+    // Force re-render the mini‐charts
     const newKeyMap = { ...forceKeyMap };
     curLayout.forEach((l) => {
       const tileId = l.i;
       newKeyMap[tileId] = (newKeyMap[tileId] || 0) + 1;
     });
-
     setForceKeyMap(newKeyMap);
+
     saveTilesToServer(updated);
   };
 
-  // ------------ Add Sensor Logic ------------
+  // ---- (4) Add sensor logic ----
   const toggleAddMode = () => {
     setIsAddMode((prev) => !prev);
     setIsDrawing(false);
@@ -163,7 +178,6 @@ const DraggableGrid = () => {
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [snapRect, setSnapRect] = useState(null);
-  const gridRef = useRef(null);
 
   const handleTileClick = (tileId) => {
     if (!isAddMode) {
@@ -177,7 +191,7 @@ const DraggableGrid = () => {
     const offsetX = px - rect.left;
     const offsetY = py - rect.top;
     return {
-      gx: Math.floor(offsetX / COL_WIDTH),
+      gx: Math.floor(offsetX / 200),
       gy: Math.floor(offsetY / ROW_HEIGHT),
     };
   };
@@ -227,7 +241,7 @@ const DraggableGrid = () => {
         x: snapRect.x,
         y: snapRect.y,
         w: snapRect.w,
-        h: snapRect.h
+        h: snapRect.h,
       },
     };
 
@@ -239,9 +253,9 @@ const DraggableGrid = () => {
 
   const snapRectStyle = () => {
     if (!snapRect || !gridRef.current) return { display: 'none' };
-    const left = snapRect.x * COL_WIDTH;
+    const left = snapRect.x * 200;
     const top = snapRect.y * ROW_HEIGHT;
-    const width = snapRect.w * COL_WIDTH;
+    const width = snapRect.w * 200;
     const height = snapRect.h * ROW_HEIGHT;
     return {
       position: 'absolute',
@@ -256,7 +270,7 @@ const DraggableGrid = () => {
     };
   };
 
-  // ------------ Render ------------
+  // ---- (5) Render ----
   return (
     <div className="draggable-grid-container">
       <button className="add-sensor-btn" onClick={toggleAddMode}>
@@ -272,17 +286,17 @@ const DraggableGrid = () => {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         />
-
+        {/* Pass the measured containerWidth to GridLayout. 
+            This keeps the layout responsive. */}
         <GridLayout
           className="layout"
           layout={layout}
-          cols={6}
+          cols={COLS}
           rowHeight={ROW_HEIGHT}
-          width={COL_WIDTH * 6}
+          width={containerWidth} 
           margin={[2, 2]}
           onDragStop={handleDragStop}
           onResizeStop={handleResizeStop}
-          // Only the header can be dragged
           draggableHandle=".tile-header"
         >
           {tiles.map((tile) => (
@@ -290,7 +304,7 @@ const DraggableGrid = () => {
               <TileView
                 tile={tile}
                 onClick={() => handleTileClick(tile.id)}
-                forceKey={(forceKeyMap[tile.id] || 0)}
+                forceKey={forceKeyMap[tile.id] || 0}
               />
             </div>
           ))}
@@ -302,14 +316,13 @@ const DraggableGrid = () => {
 
 export default DraggableGrid;
 
-// The tile: header is drag handle, body is clickable -> open fullscreen
+// Sub‐component for each tile
 const TileView = ({ tile, onClick, forceKey }) => {
   return (
     <div className="tile">
       <div className="tile-header">
         <h4>{tile.title}</h4>
       </div>
-      {/* Body => open fullscreen on click */}
       <div className="tile-body" onClick={onClick}>
         <MiniTileChart key={`mini-${tile.id}-${forceKey}`} tile={tile} />
       </div>
