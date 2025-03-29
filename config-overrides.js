@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 
 module.exports = function override(config) {
+  // Example alias/fallback usage, kept minimal
   config.resolve.alias = {
     ...config.resolve.alias,
     'process/browser': require.resolve('./src/shims/process-shim.js'),
@@ -11,6 +12,7 @@ module.exports = function override(config) {
     process: require.resolve('process/browser'),
   };
   config.resolve.extensions = [...config.resolve.extensions, '.js'];
+
   config.plugins = [
     ...config.plugins,
     new webpack.ProvidePlugin({
@@ -18,5 +20,6 @@ module.exports = function override(config) {
       process: 'process/browser',
     }),
   ];
+
   return config;
 };

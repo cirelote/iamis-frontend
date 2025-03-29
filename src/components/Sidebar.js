@@ -4,7 +4,7 @@ import './Sidebar.css';
 
 const Sidebar = () => {
   return (
-    <nav className="sidebar">
+    <nav className="sidebar" aria-label="Main Navigation">
       <ul>
         <li>
           <Link to="/">Dashboard</Link>

@@ -3,7 +3,7 @@ import './Footer.css';
 
 const Footer = () => {
   return (
-    <footer className="footer">
+    <footer className="footer" aria-label="Footer">
       <p>&copy; {new Date().getFullYear()} IAMIS. All rights reserved.</p>
     </footer>
   );

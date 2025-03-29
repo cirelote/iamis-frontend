@@ -23,6 +23,10 @@ ChartJS.register(
 );
 
 const Chart = ({ data, options }) => {
+  if (!data) {
+    return <div className="chart">No chart data</div>;
+  }
+
   return (
     <div className="chart">
       <Line data={data} options={options} />

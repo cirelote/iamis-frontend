@@ -1,13 +1,5 @@
-.dashboard {
-  padding: 2rem;
-}
+.dashboard-page {
 
-.dashboard h2 {
-  margin-bottom: 1rem;
-}
-
-.sensor-cards {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  margin: 0;
+  padding: 1rem; /* Some padding so content doesn’t stick to edges */
 }

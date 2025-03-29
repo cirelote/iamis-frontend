@@ -1,0 +1,90 @@
+/* DraggableGrid.css */
+
+.draggable-grid-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  background: #fafafa;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Add sensor button top-left */
+.add-sensor-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.grid-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1200px; /* 6 col * 200 px */
+  height: 800px; /* or more if needed */
+  background-image:
+    linear-gradient(to right, #ccc 1px, transparent 1px),
+    linear-gradient(to bottom, #ccc 1px, transparent 1px);
+  background-size: 200px 100px;
+}
+
+.page-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1200px;
+  height: 800px;
+  background: transparent;
+  z-index: 500;
+}
+
+.layout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+}
+
+.tile-wrapper {
+  background: #fff;
+  border: 1px solid #ddd;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tile {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Draggable handle on tile-header */
+.tile-header {
+  background: #f4f4f4;
+  padding: 0.4rem;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  cursor: move;
+  user-select: none;
+}
+
+.tile-header h4 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tile-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer; /* to indicate clickable for fullscreen */
+  overflow: hidden;
+}

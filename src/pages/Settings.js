@@ -1,26 +1,61 @@
-import React, { useState } from 'react';
-import { updateSettings } from '../services/api';
+import React, { useEffect, useState } from 'react';
+import { getSettings, patchSettings } from '../services/api';
 import './Settings.css';
 
 const Settings = () => {
   const [settings, setSettings] = useState({
-    temperatureThreshold: 30,
-    humidityThreshold: 70,
+    temperatureThreshold: '',
+    humidityThreshold: ''
   });
-
+  const [initialSettings, setInitialSettings] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
+
+  useEffect(() => {
+    // Load settings from backend
+    const loadSettings = async () => {
+      try {
+        const data = await getSettings();
+        setSettings(data);
+        setInitialSettings(data);
+      } catch (error) {
+        console.error('Failed to fetch settings:', error);
+        setStatusMessage('Error fetching settings.');
+      }
+    };
+    loadSettings();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setSettings({ ...settings, [name]: value });
+    setSettings((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const changes = {};
+    // Only send changed fields to the server
+    if (settings.temperatureThreshold !== initialSettings.temperatureThreshold) {
+      changes.temperatureThreshold = Number(settings.temperatureThreshold);
+    }
+    if (settings.humidityThreshold !== initialSettings.humidityThreshold) {
+      changes.humidityThreshold = Number(settings.humidityThreshold);
+    }
+
+    if (Object.keys(changes).length === 0) {
+      setStatusMessage('No changes to update.');
+      return;
+    }
+
     try {
-      await updateSettings(settings);
+      await patchSettings(changes);
       setStatusMessage('Settings updated successfully!');
+      setInitialSettings(settings);
     } catch (error) {
+      console.error('Failed to update settings:', error);
       setStatusMessage('Failed to update settings.');
     }
   };
@@ -28,7 +63,7 @@ const Settings = () => {
   return (
     <div className="settings">
       <h2>Settings</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} aria-label="Settings Form">
         <div className="form-group">
           <label htmlFor="temperatureThreshold">Temperature Threshold (°C)</label>
           <input

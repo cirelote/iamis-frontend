@@ -3,7 +3,7 @@ import './SensorCard.css';
 
 const SensorCard = ({ title, value, unit }) => {
   return (
-    <div className="sensor-card">
+    <div className="sensor-card" role="region" aria-label={`${title} sensor card`}>
       <h3>{title}</h3>
       <p>
         {value} <span>{unit}</span>
