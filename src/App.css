@@ -1,18 +1,19 @@
+/* App.css */
+
 .app {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.main-content {
+.middle-section {
   display: flex;
   flex: 1;
+  /* The left sidebar, main content, and right sidebar sit horizontally. */
 }
 
-/* The primary page content area to the right of sidebar */
 .page-content {
   flex: 1;
-  padding: 1rem;
-  /* Let content scroll if needed, while the sidebar stays put */
   overflow: auto;
+  /* This is where the router content (Dashboard or Fullscreen) goes */
 }

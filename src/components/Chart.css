@@ -1,7 +1,8 @@
+/* Chart.css */
 .chart {
-  margin: 2rem 0;
-  background-color: #fff;
-  padding: 1rem;
-  border-radius: 4px;
+  width: 100%;
   height: 100%;
+  background-color: #fff;
+  border-radius: 4px;
+  overflow: hidden;
 }

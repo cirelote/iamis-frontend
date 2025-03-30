@@ -1,26 +1,29 @@
-.sidebar {
-  /* Remove forcing entire height of viewport – let it size naturally. */
+/* LeftSidebar.css */
+.left-sidebar {
   width: 200px;
   background-color: #f4f4f4;
-  /* Instead of forcing height: calc(100vh - 0px), let it expand/shrink. */
   padding: 1rem;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  overflow-y: auto;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.sidebar ul {
+.left-sidebar ul {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
-.sidebar li {
+.left-sidebar li {
   margin: 1rem 0;
 }
 
-.sidebar a {
+.left-sidebar a {
   text-decoration: none;
   color: #333;
 }
 
-.sidebar a:hover {
+.left-sidebar a:hover {
   color: #007bff;
 }

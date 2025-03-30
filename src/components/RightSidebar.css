@@ -1,0 +1,31 @@
+/* RightSidebar.css */
+.right-sidebar {
+  width: 200px;
+  background-color: #f4f4f4;
+  padding: 1rem;
+  box-sizing: border-box;
+  flex-shrink: 0; /* Do not let it shrink */
+  overflow-y: auto;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.right-sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.form-group input[type="number"] {
+  width: 100%;
+  padding: 0.3rem;
+  box-sizing: border-box;
+}
+
+.stats-item {
+  margin: 0.3rem 0;
+}

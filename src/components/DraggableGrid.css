@@ -1,47 +1,32 @@
-/* DraggableGrid.css */
+/* src/components/DraggableGrid.css */
 
 .draggable-grid-container {
-  /* Make it fluid instead of hard-coding vw/vh */
+  /* Make it fill the entire viewport */
   width: 100%;
-  /* Let it grow in height or scroll, rather than forcing 100vh */
-  min-height: 500px; /* You can adjust as needed */
+  height: 100%;
   position: relative;
   margin: 0;
   padding: 0;
   background: #fafafa;
   box-sizing: border-box;
-  /* Allow scrolling if the grid overflows horizontally/vertically */
-  overflow: auto;
 }
 
-/* Add sensor button top-left */
-.add-sensor-btn {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1000;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-}
-
+/* Ensure the grid container fills available height */
 .grid-container {
-  /* Remove the fixed 1200px x 800px.
-     Let react-grid-layout handle item positioning or simply expand. */
   position: relative;
-  margin: 0 auto; /* center it if it’s smaller than parent */
+  margin: 0 auto;
+  height: 100%;  /* added explicit height */
   background-image:
     linear-gradient(to right, #ccc 1px, transparent 1px),
     linear-gradient(to bottom, #ccc 1px, transparent 1px);
-  /* Keep the same grid background pattern. */
   background-size: 200px 100px;
 }
 
-/* Overlay used for drawing new tiles */
+/* Overlay used for drawing new tiles (if needed in the future) */
 .page-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  /* No longer forcing 1200x800 */
   width: 100%;
   height: 100%;
   background: transparent;
@@ -55,6 +40,7 @@
   margin: 0;
 }
 
+/* A wrapper around each tile in the grid */
 .tile-wrapper {
   background: #fff;
   border: 1px solid #ddd;
@@ -90,6 +76,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  cursor: pointer; /* to indicate clickable for fullscreen */
+  cursor: pointer;
   overflow: hidden;
 }

@@ -3,13 +3,22 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchLayout, fetchSensorData } from '../services/api';
 import { computeRollingAverages } from '../utils/rollingAverages';
+import { useGlobalSettings } from '../context/GlobalSettingsContext';
 import Chart from './Chart';
 
 const FullscreenChart = () => {
   const { tileId } = useParams();
+
   const [tile, setTile] = useState(null);
   const [data, setData] = useState([]);
-  const [scaleFactor, setScaleFactor] = useState(5);
+
+  // We'll read and write scaleFactor + min/max/avg into our context
+  const {
+    chartScaleFactor,
+    setChartMin,
+    setChartMax,
+    setChartAvg,
+  } = useGlobalSettings();
 
   useEffect(() => {
     (async () => {
@@ -43,6 +52,19 @@ const FullscreenChart = () => {
           avg90: avg90[i],
         }));
         setData(merged);
+
+        if (values.length) {
+          const minVal = Math.min(...values);
+          const maxVal = Math.max(...values);
+          const avgVal = values.reduce((sum, v) => sum + v, 0) / values.length;
+          setChartMin(minVal);
+          setChartMax(maxVal);
+          setChartAvg(avgVal);
+        } else {
+          setChartMin(null);
+          setChartMax(null);
+          setChartAvg(null);
+        }
       } catch (err) {
         console.error('Error loading data in fullscreen chart:', err);
       }
@@ -51,20 +73,12 @@ const FullscreenChart = () => {
     loadData();
     timer = setInterval(loadData, 1000);
     return () => clearInterval(timer);
-  }, [tile]);
+  }, [tile, setChartMin, setChartMax, setChartAvg]);
 
-  const minVal = data.length ? Math.min(...data.map((d) => d.value)) : null;
-  const maxVal = data.length ? Math.max(...data.map((d) => d.value)) : null;
-  const avgVal =
-    data.length > 0
-      ? data.reduce((sum, d) => sum + d.value, 0) / data.length
-      : null;
-
+  // Build chart data
   const chartData = useMemo(() => {
     if (!data.length) return null;
-    const labels = data.map((d) =>
-      new Date(d.timestamp).toLocaleTimeString()
-    );
+    const labels = data.map((d) => new Date(d.timestamp).toLocaleTimeString());
     return {
       labels,
       datasets: [
@@ -109,17 +123,19 @@ const FullscreenChart = () => {
     };
   }, [data, tile]);
 
-  const { scaledMin, scaledMax } = useMemo(() => {
-    if (!data.length) {
-      return { scaledMin: 0, scaledMax: 1 };
-    }
+  // Adjust y-scale based on chartScaleFactor
+  const [scaledMin, scaledMax] = useMemo(() => {
+    if (!data.length) return [0, 1];
+    const values = data.map((d) => d.value);
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
     const range = maxVal - minVal || 1;
-    const extra = (range * (scaleFactor - 1)) / 2;
-    return {
-      scaledMin: minVal - extra,
-      scaledMax: maxVal + extra,
-    };
-  }, [data, minVal, maxVal, scaleFactor]);
+    const extra = (range * (chartScaleFactor - 1)) / 2;
+    return [
+      minVal - extra,
+      maxVal + extra,
+    ];
+  }, [data, chartScaleFactor]);
 
   const chartOptions = useMemo(() => {
     return {
@@ -145,91 +161,22 @@ const FullscreenChart = () => {
   }, [scaledMin, scaledMax]);
 
   return (
-    <div
-      style={{
-        /* Make this fill available space instead of forcing full viewport */
-        display: 'flex',
-        flexDirection: 'column',
-        flex: 1,
-        overflow: 'auto',
-      }}
-    >
-      <div style={{ padding: '0.5rem' }}>
-        <Link to="/">Back</Link>
-      </div>
-      {!tile ? (
-        <p style={{ padding: '1rem' }}>Loading tile info...</p>
-      ) : (
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-          <div
-            style={{
-              flex: 1,
-              padding: '0.5rem',
-              overflow: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+      <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        {!tile ? (
+          <p style={{ padding: '1rem' }}>Loading tile info...</p>
+        ) : (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             {chartData ? (
-              <Chart data={chartData} options={chartOptions} />
+              <div style={{ flex: 1, position: 'relative', padding: '0.5rem' }}>
+                <Chart data={chartData} options={chartOptions} />
+              </div>
             ) : (
               <p>No data</p>
             )}
           </div>
-          <div
-            style={{
-              width: '250px',
-              flexShrink: 0,
-              borderLeft: '1px solid #ccc',
-              padding: '0.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div style={{ width: '100%', marginBottom: '1rem' }}>
-              <h3 style={{ marginTop: 0 }}>{tile.title}</h3>
-              <p>Sensor: {tile.sensorType}</p>
-              <hr />
-              <h4>Stats</h4>
-              <p>Min: {minVal !== null ? minVal.toFixed(2) : 'N/A'}</p>
-              <p>Max: {maxVal !== null ? maxVal.toFixed(2) : 'N/A'}</p>
-              <p>Avg: {avgVal !== null ? avgVal.toFixed(2) : 'N/A'}</p>
-            </div>
-            <div style={{ marginTop: '1rem' }}>
-              <h4>Y-Axis Scale</h4>
-              <p style={{ textAlign: 'center', margin: '0.5rem 0' }}>
-                Factor: {scaleFactor.toFixed(2)}
-              </p>
-              <div
-                style={{
-                  height: '150px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  step="0.1"
-                  value={scaleFactor}
-                  onChange={(e) =>
-                    setScaleFactor(parseFloat(e.target.value))
-                  }
-                  style={{
-                    writingMode: 'bt-lr',
-                    transform: 'rotate(-90deg)',
-                    height: '150px',
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

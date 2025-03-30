@@ -1,14 +1,13 @@
-// src/pages/Dashboard.js
+/* src/pages/Dashboard.js */
 import React from 'react';
 import DraggableGrid from '../components/DraggableGrid';
-import './Dashboard.css';
+import { DashboardProvider } from '../context/DashboardContext';
 
 const Dashboard = () => {
   return (
-    <div className="dashboard-page">
-      <h2>Tiled Dashboard (Resizable/Draggable)</h2>
+    <DashboardProvider>
       <DraggableGrid />
-    </div>
+    </DashboardProvider>
   );
 };
 

@@ -1,3 +1,4 @@
+// src/pages/Settings.js
 import React, { useEffect, useState } from 'react';
 import { getSettings, patchSettings } from '../services/api';
 import './Settings.css';
@@ -35,9 +36,7 @@ const Settings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const changes = {};
-    // Only send changed fields to the server
     if (settings.temperatureThreshold !== initialSettings.temperatureThreshold) {
       changes.temperatureThreshold = Number(settings.temperatureThreshold);
     }
