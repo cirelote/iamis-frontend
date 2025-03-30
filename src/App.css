@@ -1,5 +1,4 @@
 /* App.css */
-
 .app {
   display: flex;
   flex-direction: column;
@@ -9,11 +8,9 @@
 .middle-section {
   display: flex;
   flex: 1;
-  /* The left sidebar, main content, and right sidebar sit horizontally. */
 }
 
 .page-content {
   flex: 1;
   overflow: auto;
-  /* This is where the router content (Dashboard or Fullscreen) goes */
 }

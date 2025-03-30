@@ -1,6 +1,6 @@
 /* Footer.css */
 .footer {
-  background-color: #282c34;
-  color: white;
+  background-color: var(--header-footer-bg);
+  color: var(--header-footer-text);
   text-align: center;
 }

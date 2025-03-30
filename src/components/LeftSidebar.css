@@ -1,8 +1,8 @@
 /* LeftSidebar.css */
 .left-sidebar {
-  width: 200px;
-  background-color: #f4f4f4;
-  padding: 1rem;
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  padding: var(--padding-medium);
   box-sizing: border-box;
   flex-shrink: 0;
   overflow-y: auto;
@@ -10,20 +10,20 @@
 }
 
 .left-sidebar ul {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .left-sidebar li {
-  margin: 1rem 0;
+  margin: var(--padding-medium) 0;
 }
 
 .left-sidebar a {
   text-decoration: none;
-  color: #333;
+  color: var(--text-color);
 }
 
 .left-sidebar a:hover {
-  color: #007bff;
+  color: var(--primary-color);
 }

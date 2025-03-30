@@ -1,4 +1,30 @@
 /* index.css */
+:root {
+  /* Colors */
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --secondary-color: #282c34;
+  --light-bg: #f5f5f5;
+  --sidebar-bg: #f4f4f4;
+  --text-color: #333;
+  --border-color: #ddd;
+  --error-color: #d9534f;
+  --header-footer-bg: #282c34;
+  --header-footer-text: #fff;
+  --grid-line-color: #ccc;
+  --white: #fff;
+
+  /* Spacing & Sizing */
+  --padding-small: 0.5rem;
+  --padding-medium: 1rem;
+  --padding-large: 2rem;
+  --sidebar-width: 200px;
+  --border-radius: 4px;
+
+  /* Shadows */
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
 html, body, #root {
   margin: 0;
   padding: 0;
@@ -7,5 +33,6 @@ html, body, #root {
 
 body {
   font-family: 'Quicksand', sans-serif;
-  background-color: #f5f5f5;
+  background-color: var(--light-bg);
+  color: var(--text-color);
 }

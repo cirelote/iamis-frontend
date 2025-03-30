@@ -1,9 +1,9 @@
 /* NotFound.css */
 .not-found {
-  padding: 2rem;
+  padding: var(--padding-large);
   text-align: center;
 }
 
 .not-found h2 {
-  color: #d9534f;
+  color: var(--error-color);
 }
