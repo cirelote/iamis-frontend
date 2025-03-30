@@ -12,28 +12,26 @@ import { GlobalSettingsProvider } from './context/GlobalSettingsContext';
 import { DashboardProvider } from './context/DashboardContext';
 import './App.css';
 
-const App = () => {
-  return (
-    <GlobalSettingsProvider>
-      <DashboardProvider>
-        <div className="app" aria-label="IAMIS Application Container">
-          <Header />
-          <div className="middle-section">
-            <LeftSidebar />
-            <div className="page-content">
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/chart/:tileId" element={<FullscreenChart />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-            <RightSidebar />
+const App = () => (
+  <GlobalSettingsProvider>
+    <DashboardProvider>
+      <div className="app" aria-label="IAMIS Application Container">
+        <Header />
+        <div className="middle-section">
+          <LeftSidebar />
+          <div className="page-content">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/chart/:tileId" element={<FullscreenChart />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </div>
-          <Footer />
+          <RightSidebar />
         </div>
-      </DashboardProvider>
-    </GlobalSettingsProvider>
-  );
-};
+        <Footer />
+      </div>
+    </DashboardProvider>
+  </GlobalSettingsProvider>
+);
 
 export default App;

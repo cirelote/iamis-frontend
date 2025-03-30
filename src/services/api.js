@@ -1,29 +1,41 @@
+// src/services/api.js
 import axios from 'axios';
 
-// Base config
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
 });
 
-// --- Pagination example: GET /sensor-data/{sensor_type}/?page=1&limit=100
-
 // Sensor data
 export const fetchSensorData = async (sensorType, { page = 1, limit = 20 } = {}) => {
-  const response = await api.get(`/sensor-data/${sensorType}/`, {
-    params: { page, limit },
-  });
-  return response.data.reverse();
+  try {
+    const response = await api.get(`/sensor-data/${sensorType}/`, { params: { page, limit } });
+    // If reversing data is a presentation concern, consider doing it on the client
+    return response.data.reverse();
+  } catch (error) {
+    console.error(`Error fetching sensor data for ${sensorType}:`, error.message);
+    throw error;
+  }
 };
 
 // Layout endpoints
 export const fetchLayout = async () => {
-  const response = await api.get('/api/layout');
-  return response.data;
+  try {
+    const response = await api.get('/api/layout');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching layout:', error.message);
+    throw error;
+  }
 };
 
 export const saveLayout = async (layoutObj) => {
-  const response = await api.post('/api/layout', layoutObj);
-  return response.data;
+  try {
+    const response = await api.post('/api/layout', layoutObj);
+    return response.data;
+  } catch (error) {
+    console.error('Error saving layout:', error.message);
+    throw error;
+  }
 };
 
 export const createSensorData = async (data) => {
@@ -46,7 +58,6 @@ export const getSettings = async () => {
   }
 };
 
-// Patch only changed fields
 export const patchSettings = async (changes) => {
   try {
     const response = await api.patch('/api/settings', changes);

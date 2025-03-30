@@ -1,14 +1,8 @@
-/* src/pages/Dashboard.js */
+// src/pages/Dashboard.js
 import React from 'react';
 import DraggableGrid from '../components/DraggableGrid';
-import { DashboardProvider } from '../context/DashboardContext';
+import './Dashboard.css';
 
-const Dashboard = () => {
-  return (
-    <DashboardProvider>
-      <DraggableGrid />
-    </DashboardProvider>
-  );
-};
+const Dashboard = () => <DraggableGrid />;
 
 export default Dashboard;

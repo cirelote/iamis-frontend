@@ -1,5 +1,5 @@
 // src/components/DraggableGrid.js
-import React, { useState, useRef, useContext, useEffect } from 'react';
+import React, { useState, useRef, useContext, useEffect, useCallback } from 'react';
 import GridLayout from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
 import { DashboardContext } from '../context/DashboardContext';
@@ -9,35 +9,43 @@ import 'react-resizable/css/styles.css';
 import './DraggableGrid.css';
 import MiniTileChart from './MiniTileChart';
 
+// Simple debounce function
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
 const DraggableGrid = () => {
   const navigate = useNavigate();
   const { tiles, updateTileLayout } = useContext(DashboardContext);
   const { numCols, numRows } = useGlobalSettings();
-  const [forceKeyMap, setForceKeyMap] = useState({});
-  const gridRef = useRef(null);
   const [gridHeight, setGridHeight] = useState(0);
+  const gridRef = useRef(null);
 
-  // Update gridHeight on mount and when window resizes
-  useEffect(() => {
-    const updateGridHeight = () => {
-      if (gridRef.current) {
-        setGridHeight(gridRef.current.clientHeight);
-      }
-    };
-    updateGridHeight();
-    window.addEventListener('resize', updateGridHeight);
-    return () => window.removeEventListener('resize', updateGridHeight);
+  const updateGridHeight = useCallback(() => {
+    if (gridRef.current) {
+      setGridHeight(gridRef.current.clientHeight);
+    }
   }, []);
 
-  // Calculate rowHeight dynamically based on grid container height and number of rows.
+  useEffect(() => {
+    updateGridHeight();
+    const debouncedResize = debounce(updateGridHeight, 200);
+    window.addEventListener('resize', debouncedResize);
+    return () => window.removeEventListener('resize', debouncedResize);
+  }, [updateGridHeight]);
+
   const rowHeight = gridHeight && numRows ? gridHeight / numRows : 30;
 
-  const layout = tiles.map((t) => ({
-    i: t.id,
-    x: t.layout.x,
-    y: t.layout.y,
-    w: t.layout.w,
-    h: t.layout.h,
+  const layout = tiles.map((tile) => ({
+    i: tile.id,
+    x: tile.layout.x,
+    y: tile.layout.y,
+    w: tile.layout.w,
+    h: tile.layout.h,
   }));
 
   const handleDragStop = (curLayout) => {
@@ -46,11 +54,6 @@ const DraggableGrid = () => {
 
   const handleResizeStop = (curLayout) => {
     updateTileLayout(curLayout);
-    const newKeyMap = { ...forceKeyMap };
-    curLayout.forEach((l) => {
-      newKeyMap[l.i] = (newKeyMap[l.i] || 0) + 1;
-    });
-    setForceKeyMap(newKeyMap);
   };
 
   const handleTileClick = (tileId) => {
@@ -73,11 +76,7 @@ const DraggableGrid = () => {
         >
           {tiles.map((tile) => (
             <div key={tile.id} className="tile-wrapper">
-              <TileView
-                tile={tile}
-                onClick={() => handleTileClick(tile.id)}
-                forceKey={forceKeyMap[tile.id] || 0}
-              />
+              <TileView tile={tile} onClick={() => handleTileClick(tile.id)} />
             </div>
           ))}
         </GridLayout>
@@ -86,17 +85,15 @@ const DraggableGrid = () => {
   );
 };
 
-const TileView = ({ tile, onClick, forceKey }) => {
-  return (
-    <div className="tile">
-      <div className="tile-header">
-        <h4>{tile.title}</h4>
-      </div>
-      <div className="tile-body" onClick={onClick}>
-        <MiniTileChart key={`mini-${tile.id}-${forceKey}`} tile={tile} />
-      </div>
+const TileView = ({ tile, onClick }) => (
+  <div className="tile">
+    <div className="tile-header">
+      <h4>{tile.title}</h4>
     </div>
-  );
-};
+    <div className="tile-body" onClick={onClick}>
+      <MiniTileChart tile={tile} />
+    </div>
+  </div>
+);
 
 export default DraggableGrid;
