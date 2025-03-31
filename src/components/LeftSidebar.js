@@ -11,8 +11,7 @@ const LeftSidebar = () => {
           <Link to="/">Dashboard</Link>
         </li>
         <li>
-          <Link to="/settings">Settings (Old)</Link>
-          {/* Remove or update if desired */}
+          <Link to="/History">History</Link>
         </li>
       </ul>
     </nav>
